@@ -1,6 +1,3 @@
-import org.openjdk.jol.info.GraphLayout;
-import org.openjdk.jol.vm.VM;
-
 import java.util.Random;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -27,14 +24,15 @@ public abstract class MctsTest {
         return randomInstance.nextInt(100_000_000);
     }
 
-    private void benchmarkExpand() {
+    private double benchmarkExpand() {
         long startTime = System.nanoTime();
         expand();
-        double elapsedTimeInSeconds = elapsedTime(startTime);
-        System.out.printf(
-                "Hinzufügen (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
-                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTimeInSeconds
-        );
+//        double elapsedTimeInSeconds = elapsedTime(startTime);
+        return elapsedTime(startTime);
+//        System.out.printf(
+//                "Hinzufügen (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
+//                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTimeInSeconds
+//        );
     }
 
     private double elapsedTime(long startTime) {
@@ -100,15 +98,19 @@ public abstract class MctsTest {
     protected abstract void selectLeafChildren();
 
     public static void main(String[] args) {
-        for (int i = 1; i <= 10; i++) {
+        int numberOfRuns = 10;
+        int maxDepth = 10;
+        for (int i = 1; i <= maxDepth; i++) {
             TARGET_DEPTH = i;
-            for (int j = 0; j < 100; j++) {
+            double elapsedTime = 0;
+            for (int j = 0; j < numberOfRuns; j++) {
                 MctsTest underTest = new MctsTreeMap();
 //        System.out.printf("GameTreeSize before expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
-                underTest.benchmarkExpand();
+                elapsedTime += underTest.benchmarkExpand();
 //        System.out.printf("GameTreeSize after expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
 //                underTest.benchmarkSelect();
             }
+            System.out.println(elapsedTime / numberOfRuns);
         }
 
     }
