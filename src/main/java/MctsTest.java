@@ -14,6 +14,11 @@ public abstract class MctsTest {
     protected static final Integer NUMBER_OF_CHILDREN = 10;
     protected static Integer TARGET_DEPTH = 9;
 
+    protected static double elapsedTimeSelectRoot = 0;
+    protected static double elapsedTimeSelectRootChildren = 0;
+    protected static double elapsedTimeSelectLeaf = 0;
+    protected static double elapsedTimeSelectLeafChildren = 0;
+
     protected abstract void expand();
 
     protected abstract int getNumberOfNodes();
@@ -27,12 +32,7 @@ public abstract class MctsTest {
     private double benchmarkExpand() {
         long startTime = System.nanoTime();
         expand();
-//        double elapsedTimeInSeconds = elapsedTime(startTime);
         return elapsedTime(startTime);
-//        System.out.printf(
-//                "Hinzufügen (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
-//                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTimeInSeconds
-//        );
     }
 
     private double elapsedTime(long startTime) {
@@ -53,40 +53,44 @@ public abstract class MctsTest {
         long startTime = System.nanoTime();
         selectRoot();
         double elapsedTime = elapsedTime(startTime);
-        System.out.printf(
-                "selectRoot (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
-                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
-        );
+        elapsedTimeSelectRoot += elapsedTime;
+//        System.out.printf(
+//                "selectRoot (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
+//                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
+//        );
     }
 
     private void benchmarkSelectRootChildren() {
         long startTime = System.nanoTime();
         selectRootChildren();
         double elapsedTime = elapsedTime(startTime);
-        System.out.printf(
-                "selectRootChildren (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
-                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
-        );
+        elapsedTimeSelectRootChildren += elapsedTime;
+//        System.out.printf(
+//                "selectRootChildren (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
+//                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
+//        );
     }
 
     private void benchmarkSelectLeaf() {
         long startTime = System.nanoTime();
         selectLeaf();
         double elapsedTime = elapsedTime(startTime);
-        System.out.printf(
-                "selectLeaf (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
-                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
-        );
+        elapsedTimeSelectLeaf += elapsedTime;
+//        System.out.printf(
+//                "selectLeaf (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
+//                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
+//        );
     }
 
     private void benchmarkSelectLeafChildren() {
         long startTime = System.nanoTime();
         selectLeafChildren();
         double elapsedTime = elapsedTime(startTime);
-        System.out.printf(
-                "selectLeafChildren (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
-                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
-        );
+        elapsedTimeSelectLeafChildren += elapsedTime;
+//        System.out.printf(
+//                "selectLeafChildren (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
+//                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTime
+//        );
     }
 
     protected abstract void selectRoot();
@@ -98,19 +102,25 @@ public abstract class MctsTest {
     protected abstract void selectLeafChildren();
 
     public static void main(String[] args) {
-        int numberOfRuns = 10;
-        int maxDepth = 10;
-        for (int i = 1; i <= maxDepth; i++) {
+        int numberOfRuns = 100;
+        int maxDepth = 8;
+        for (int i = 0; i <= maxDepth; i++) {
             TARGET_DEPTH = i;
-            double elapsedTime = 0;
+            elapsedTimeSelectRoot = 0;
+            elapsedTimeSelectRootChildren = 0;
+            elapsedTimeSelectLeaf = 0;
+            elapsedTimeSelectLeafChildren = 0;
+            System.out.printf("Start benchmark for depth=%d%n", TARGET_DEPTH);
+            MctsTest underTest = new MctsTreeMap();
+            underTest.expand();
             for (int j = 0; j < numberOfRuns; j++) {
-                MctsTest underTest = new MctsTreeMap();
-//        System.out.printf("GameTreeSize before expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
-                elapsedTime += underTest.benchmarkExpand();
-//        System.out.printf("GameTreeSize after expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
-//                underTest.benchmarkSelect();
+                underTest.benchmarkSelect();
             }
-            System.out.println(elapsedTime / numberOfRuns);
+            System.out.println("elapsedTimeSelectRoot=" + elapsedTimeSelectRoot / numberOfRuns);
+            System.out.println("elapsedTimeSelectRootChildren=" + elapsedTimeSelectRootChildren / numberOfRuns);
+            System.out.println("elapsedTimeSelectLeaf=" + elapsedTimeSelectLeaf / numberOfRuns);
+            System.out.println("elapsedTimeSelectLeafChildren=" + elapsedTimeSelectLeafChildren / numberOfRuns);
+            System.out.println();
         }
 
     }
