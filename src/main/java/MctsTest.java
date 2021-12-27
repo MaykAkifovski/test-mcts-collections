@@ -1,3 +1,5 @@
+import org.openjdk.jol.info.GraphLayout;
+
 import java.util.Random;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -29,10 +31,14 @@ public abstract class MctsTest {
         return randomInstance.nextInt(100_000_000);
     }
 
-    private double benchmarkExpand() {
+    private void benchmarkExpand() {
         long startTime = System.nanoTime();
         expand();
-        return elapsedTime(startTime);
+        double elapsedTimeInSeconds = elapsedTime(startTime);
+        System.out.printf(
+                "Hinzufügen (Knoten=%d, Tiefe=%d, Kinder=%d) hat %f s gedauert.%n",
+                getNumberOfNodes(), TARGET_DEPTH, NUMBER_OF_CHILDREN, elapsedTimeInSeconds
+        );
     }
 
     private double elapsedTime(long startTime) {
@@ -106,21 +112,11 @@ public abstract class MctsTest {
         int maxDepth = 8;
         for (int i = 0; i <= maxDepth; i++) {
             TARGET_DEPTH = i;
-            elapsedTimeSelectRoot = 0;
-            elapsedTimeSelectRootChildren = 0;
-            elapsedTimeSelectLeaf = 0;
-            elapsedTimeSelectLeafChildren = 0;
             System.out.printf("Start benchmark for depth=%d%n", TARGET_DEPTH);
             MctsTest underTest = new MctsTreeMap();
-            underTest.expand();
-            for (int j = 0; j < numberOfRuns; j++) {
-                underTest.benchmarkSelect();
-            }
-            System.out.println("elapsedTimeSelectRoot=" + elapsedTimeSelectRoot / numberOfRuns);
-            System.out.println("elapsedTimeSelectRootChildren=" + elapsedTimeSelectRootChildren / numberOfRuns);
-            System.out.println("elapsedTimeSelectLeaf=" + elapsedTimeSelectLeaf / numberOfRuns);
-            System.out.println("elapsedTimeSelectLeafChildren=" + elapsedTimeSelectLeafChildren / numberOfRuns);
-            System.out.println();
+            System.out.printf("GameTreeSize before expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
+            underTest.benchmarkExpand();
+            System.out.printf("GameTreeSize after expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
         }
 
     }

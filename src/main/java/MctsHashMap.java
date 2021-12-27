@@ -7,7 +7,6 @@ public class MctsHashMap extends MctsTest {
 
     public MctsHashMap() {
         gameTree = new HashMap<>();
-
         gameTree.put(FIRST_NODE_KEY, getRanomValue());
     }
 
