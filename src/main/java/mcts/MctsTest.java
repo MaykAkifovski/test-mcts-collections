@@ -1,3 +1,6 @@
+package mcts;
+
+import mcts.hashMapTree.MctsHashMapTree;
 import org.openjdk.jol.info.GraphLayout;
 
 import java.util.Random;
@@ -113,10 +116,11 @@ public abstract class MctsTest {
         for (int i = 0; i <= maxDepth; i++) {
             TARGET_DEPTH = i;
             System.out.printf("Start benchmark for depth=%d%n", TARGET_DEPTH);
-            MctsTest underTest = new MctsTreeMap();
+            MctsTest underTest = new MctsHashMapTree();
             System.out.printf("GameTreeSize before expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
             underTest.benchmarkExpand();
             System.out.printf("GameTreeSize after expand %d bytes.%n", GraphLayout.parseInstance(underTest.getGameTree()).totalSize());
+            System.out.println();
         }
 
     }

@@ -1,3 +1,7 @@
+package mcts.hashMap;
+
+import mcts.MctsTest;
+
 import java.util.*;
 import java.util.stream.Collectors;
 

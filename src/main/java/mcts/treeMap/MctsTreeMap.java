@@ -1,3 +1,7 @@
+package mcts.treeMap;
+
+import mcts.MctsTest;
+
 import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedMap;
@@ -13,8 +17,8 @@ public class MctsTreeMap extends MctsTest {
         gameTree = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
-                String[] o1_items = o1.split(DELIMETER);
-                String[] o2_items = o2.split(DELIMETER);
+                String[] o1_items = o1.split(MctsTest.DELIMETER);
+                String[] o2_items = o2.split(MctsTest.DELIMETER);
                 if (o1_items.length < o2_items.length) {
                     return -1;
                 } else if (o1_items.length > o2_items.length) {
@@ -30,12 +34,12 @@ public class MctsTreeMap extends MctsTest {
             }
         });
 
-        gameTree.put(FIRST_NODE_KEY, getRanomValue());
+        gameTree.put(MctsTest.FIRST_NODE_KEY, getRanomValue());
     }
 
     @Override
     protected void expand() {
-        addChildren(FIRST_NODE_KEY);
+        addChildren(MctsTest.FIRST_NODE_KEY);
     }
 
     @Override
@@ -49,8 +53,8 @@ public class MctsTreeMap extends MctsTest {
     }
 
     private void addChildren(String parentKey) {
-        if (parentKey.split(DELIMETER).length < TARGET_DEPTH) {
-            for (int i = 0; i < NUMBER_OF_CHILDREN; i++) {
+        if (parentKey.split(MctsTest.DELIMETER).length < MctsTest.TARGET_DEPTH) {
+            for (int i = 0; i < MctsTest.NUMBER_OF_CHILDREN; i++) {
                 String childKey = generateTreeMapKey(parentKey, i);
                 gameTree.put(childKey, getRanomValue());
                 addChildren(childKey);
@@ -60,7 +64,7 @@ public class MctsTreeMap extends MctsTest {
 
 
     private String generateTreeMapKey(String parentNodeKey, int childNodeIndex) {
-        return parentNodeKey + DELIMETER + indexToString.apply(childNodeIndex);
+        return parentNodeKey + MctsTest.DELIMETER + MctsTest.indexToString.apply(childNodeIndex);
     }
 
     @Override
@@ -70,8 +74,8 @@ public class MctsTreeMap extends MctsTest {
 
     @Override
     protected void selectRootChildren() {
-        String fromKey = generateTreeMapKey(FIRST_NODE_KEY, FIRST_NODE_INDEX);
-        String toKey = generateTreeMapKey("01", FIRST_NODE_INDEX);
+        String fromKey = generateTreeMapKey(MctsTest.FIRST_NODE_KEY, MctsTest.FIRST_NODE_INDEX);
+        String toKey = generateTreeMapKey("01", MctsTest.FIRST_NODE_INDEX);
         SortedMap<String, Integer> rootChildren = gameTree.tailMap(fromKey, true).headMap(toKey);
     }
 
@@ -82,7 +86,7 @@ public class MctsTreeMap extends MctsTest {
 
     @Override
     protected void selectLeafChildren() {
-        String fromKey = IntStream.range(0, TARGET_DEPTH).mapToObj(i -> FIRST_NODE_KEY).collect(Collectors.joining(DELIMETER));
+        String fromKey = IntStream.range(0, MctsTest.TARGET_DEPTH).mapToObj(i -> MctsTest.FIRST_NODE_KEY).collect(Collectors.joining(MctsTest.DELIMETER));
         String toKey = gameTree.lastKey();
         SortedMap<String, Integer> stringIntegerSortedMap = gameTree.tailMap(fromKey, true).headMap(toKey);
     }
