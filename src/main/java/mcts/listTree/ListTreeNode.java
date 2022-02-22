@@ -1,15 +1,14 @@
 package mcts.listTree;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class ListTreeNode {
-    Integer value;
+    Integer score;
     List<ListTreeNode> children;
 
-    public ListTreeNode(Integer value) {
-        this.value = value;
+    public ListTreeNode(Integer score) {
+        this.score = score;
     }
 
     public ListTreeNode addChild(Integer value) {

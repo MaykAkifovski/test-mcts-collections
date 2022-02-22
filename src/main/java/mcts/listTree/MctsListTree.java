@@ -7,6 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class MctsListTree extends MctsTest {
 
@@ -24,7 +25,10 @@ public class MctsListTree extends MctsTest {
 
     @Override
     protected int getNumberOfNodes() {
-        return gameTree.size();
+        return IntStream
+                .range(0, TARGET_DEPTH + 1)
+                .mapToObj(i -> (int) Math.pow(NUMBER_OF_CHILDREN, i))
+                .reduce(0, Integer::sum);
     }
 
     @Override

@@ -1,9 +1,13 @@
 package mcts;
 
+import mcts.hashMap.MctsHashMap;
 import mcts.hashMapTree.MctsHashMapTree;
+import mcts.listTree.MctsListTree;
+import mcts.treeMap.MctsTreeMap;
 import org.openjdk.jol.info.GraphLayout;
 
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -16,7 +20,7 @@ public abstract class MctsTest {
     protected static final Pattern p = Pattern.compile(", [0-9]*$");
 
     protected final Random randomInstance = new Random(123L);
-    protected static final Integer NUMBER_OF_CHILDREN = 10;
+    protected static final Integer NUMBER_OF_CHILDREN = 3;
     protected static Integer TARGET_DEPTH = 9;
 
     protected static double elapsedTimeSelectRoot = 0;
@@ -111,9 +115,8 @@ public abstract class MctsTest {
     protected abstract void selectLeafChildren();
 
     public static void main(String[] args) {
-        int numberOfRuns = 100;
-        int maxDepth = 8;
-        for (int i = 0; i <= maxDepth; i++) {
+        int maxDepth = 5;
+        for (int i = 5; i <= maxDepth; i++) {
             TARGET_DEPTH = i;
             System.out.printf("Start benchmark for depth=%d%n", TARGET_DEPTH);
             MctsTest underTest = new MctsHashMapTree();

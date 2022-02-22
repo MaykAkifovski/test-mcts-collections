@@ -3,11 +3,11 @@ package mcts.hashMapTree;
 import java.util.HashMap;
 
 public class HashMapTreeNode {
-    Integer value;
+    Integer score;
     HashMap<Integer, HashMapTreeNode> children;
 
-    public HashMapTreeNode(Integer value) {
-        this.value = value;
+    public HashMapTreeNode(Integer score) {
+        this.score = score;
     }
 
     public HashMapTreeNode addChild(Integer childKey, Integer value) {
