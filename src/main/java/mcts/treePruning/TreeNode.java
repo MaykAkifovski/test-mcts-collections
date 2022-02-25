@@ -22,4 +22,6 @@ public class TreeNode {
         this.score = score;
         this.heuristicScoreThreshold = HEURISTIC_SCORE_THRESHOLD_THETA * score;
     }
+
+
 }

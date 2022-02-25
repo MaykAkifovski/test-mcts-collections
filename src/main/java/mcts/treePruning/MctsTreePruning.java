@@ -10,8 +10,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class MctsTreePruning {
-    private static final int NUMBER_OF_CHILDREN = 10;
+    public static final double PRUNED_NODES_LIMIT = 0.3;
     public static final double HEURISTIC_SCORE_THRESHOLD_THETA = 0.9;
+    private static final int NUMBER_OF_CHILDREN = 30;
     private final Random randomInstance = new Random(123L);
     private TreeNode gameTree;
     private int numberOfNodes = 0;
@@ -21,23 +22,38 @@ public class MctsTreePruning {
         numberOfNodes += 1;
     }
 
-
     private void expand(TreeNode parent) {
-        List<TreeNode> children = IntStream
+        List<TreeNode> children = getChildren(parent);
+        parent.children = children;
+        numberOfNodes += children.size();
+    }
+
+    private List<TreeNode> getChildren(TreeNode parent) {
+        List<TreeNode> nextLegalGames = getNextLegalGames(parent);
+        long numberOfNextLegalGames = nextLegalGames.size();
+        List<TreeNode> nextLegalGamesOverThreshold = getNextLegalGamesOverThreshold(parent, nextLegalGames);
+        long numberOfNextLegalGamesOverThreshold = nextLegalGamesOverThreshold.size();
+        if (numberOfNextLegalGamesOverThreshold >= PRUNED_NODES_LIMIT * numberOfNextLegalGames) {
+            return nextLegalGamesOverThreshold;
+        } else {
+            return nextLegalGames.stream().limit(numberOfNextLegalGames / 2).collect(Collectors.toList());
+        }
+    }
+
+    private List<TreeNode> getNextLegalGames(TreeNode parent) {
+        return IntStream
                 .range(0, NUMBER_OF_CHILDREN)
                 .mapToObj(i -> new TreeNode(randomInt(), parent))
+                .sorted(Comparator.comparing(o -> o.score, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
-        List<TreeNode> childrenOverThreshold = children.stream().filter(child -> child.score > parent.heuristicScoreThreshold).collect(Collectors.toList());
-        if (childrenOverThreshold.size() >= 0.3 * children.size()) {
-            parent.children = childrenOverThreshold;
-        } else {
-            parent.children = children.stream().sorted(Comparator.comparing(o -> o.score)).limit(children.size() / 2).collect(Collectors.toList());
-        }
-        numberOfNodes += parent.children.size();
+    }
+
+    private List<TreeNode> getNextLegalGamesOverThreshold(TreeNode parent, List<TreeNode> nextLegalGames) {
+        return nextLegalGames.stream().filter(child -> child.score > parent.heuristicScoreThreshold).collect(Collectors.toList());
     }
 
     public int randomInt() {
-        return randomInstance.nextInt(10_000);
+        return randomInstance.nextInt(100_000_000);
     }
 
     private void printSize(int depth) {
@@ -45,6 +61,7 @@ public class MctsTreePruning {
         long sizeKBs = sizeBytes / 1024;
         long sizeMBs = sizeKBs / 1024;
         long sizeGBs = sizeMBs / 1024;
+//        System.out.println(numberOfNodes);
         System.out.printf("Depth %d: GameTreeSize[nodes=%d] %d Bytes / %d KB / %d MB / %d GB.%n", depth, numberOfNodes, sizeBytes, sizeKBs, sizeMBs, sizeGBs);
     }
 
