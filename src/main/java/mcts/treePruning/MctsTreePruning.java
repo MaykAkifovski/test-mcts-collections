@@ -11,8 +11,10 @@ import java.util.stream.IntStream;
 
 public class MctsTreePruning {
     public static final double PRUNED_NODES_LIMIT = 0.3;
-    public static final double HEURISTIC_SCORE_THRESHOLD_THETA = 0.9;
+    public static final double HEURISTIC_SCORE_THRESHOLD_THETA = 1.3;
     private static final int NUMBER_OF_CHILDREN = 30;
+    private static final int LIMIT = NUMBER_OF_CHILDREN / 3;
+    private static int TARGET_DEPTH = 0;
     private final Random randomInstance = new Random(123L);
     private TreeNode gameTree;
     private int numberOfNodes = 0;
@@ -23,9 +25,16 @@ public class MctsTreePruning {
     }
 
     private void expand(TreeNode parent) {
-        List<TreeNode> children = getChildren(parent);
-        parent.children = children;
-        numberOfNodes += children.size();
+        addChildren(parent, 0);
+    }
+
+    private void addChildren(TreeNode parent, int currentDepth) {
+        if (currentDepth < TARGET_DEPTH) {
+            List<TreeNode> children = getChildren(parent);
+            parent.children = children;
+            numberOfNodes += children.size();
+            children.forEach(child -> addChildren(child, currentDepth + 1));
+        }
     }
 
     private List<TreeNode> getChildren(TreeNode parent) {
@@ -36,7 +45,7 @@ public class MctsTreePruning {
         if (numberOfNextLegalGamesOverThreshold >= PRUNED_NODES_LIMIT * numberOfNextLegalGames) {
             return nextLegalGamesOverThreshold;
         } else {
-            return nextLegalGames.stream().limit(numberOfNextLegalGames / 2).collect(Collectors.toList());
+            return nextLegalGames.stream().limit(LIMIT).collect(Collectors.toList());
         }
     }
 
@@ -56,57 +65,26 @@ public class MctsTreePruning {
         return randomInstance.nextInt(100_000_000);
     }
 
-    private void printSize(int depth) {
+    private void printSize() {
         long sizeBytes = GraphLayout.parseInstance(gameTree).totalSize();
         long sizeKBs = sizeBytes / 1024;
         long sizeMBs = sizeKBs / 1024;
         long sizeGBs = sizeMBs / 1024;
-//        System.out.println(numberOfNodes);
-        System.out.printf("Depth %d: GameTreeSize[nodes=%d] %d Bytes / %d KB / %d MB / %d GB.%n", depth, numberOfNodes, sizeBytes, sizeKBs, sizeMBs, sizeGBs);
+        System.out.printf("Depth %d: GameTreeSize[nodes=%d] %d Bytes / %d KB / %d MB / %d GB.%n", TARGET_DEPTH, numberOfNodes, sizeBytes, sizeKBs, sizeMBs, sizeGBs);
     }
 
     public static void main(String[] args) {
         MctsTreePruning mcts = new MctsTreePruning();
-        mcts.printSize(0);
+        mcts.printSize();
+        for (int i = 1; i <= 10; i++) {
+            mcts = new MctsTreePruning();
+            TARGET_DEPTH = i;
 
-        mcts.expand(mcts.gameTree);
-        mcts.printSize(1);
-
-        List<TreeNode> children = mcts.gameTree.children;
-        children.forEach(mcts::expand);
-        mcts.printSize(2);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(3);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(4);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(5);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(6);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(7);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(8);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(9);
-
-        children = children.stream().map(child -> child.children).flatMap(Collection::stream).collect(Collectors.toList());
-        children.forEach(mcts::expand);
-        mcts.printSize(10);
+            mcts.expand(mcts.gameTree);
+            System.out.println(mcts.numberOfNodes);
+            mcts.printSize();
+        }
+        System.out.println();
     }
 
 }
